@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Melody Generator Demo</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <p class="eyebrow">Generative music demo</p>
+          <h1>Melody Generator</h1>
+        </div>
+        <div class="transport" aria-label="Transport controls">
+          <button class="primary-button" id="playButton" type="button">Play</button>
+          <button class="icon-button" id="stopButton" type="button">Stop</button>
+          <button class="icon-button" id="rebuildButton" type="button">Rebuild</button>
+        </div>
+      </header>
+
+      <section class="workspace" aria-label="Generative music controls">
+        <aside class="panel controls-panel">
+          <div class="field">
+            <label for="variationSelect">Take</label>
+            <select id="variationSelect">
+              <option value="0">Slow</option>
+              <option value="1">Medium</option>
+              <option value="2">Fast</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="seedInput">Seed</label>
+            <input id="seedInput" type="number" min="1" max="9999" step="1">
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="tempoInput">Tempo</label>
+              <output id="tempoOutput"></output>
+            </div>
+            <input id="tempoInput" type="range" min="60" max="128" step="1">
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="densityInput">Density</label>
+              <output id="densityOutput"></output>
+            </div>
+            <input id="densityInput" type="range" min="0" max="4" step="1">
+          </div>
+
+          <div class="button-row">
+            <button id="repeatButton" type="button">Same seed</button>
+            <button id="newSeedButton" type="button">New seed</button>
+          </div>
+        </aside>
+
+        <section class="stage">
+          <canvas id="rollCanvas" width="1200" height="620"></canvas>
+          <div class="status-strip">
+            <div>
+              <span class="metric-label">Signature</span>
+              <strong id="signatureText">00000000</strong>
+            </div>
+            <div>
+              <span class="metric-label">Bars</span>
+              <strong id="barsText">8</strong>
+            </div>
+            <div>
+              <span class="metric-label">Events</span>
+              <strong id="eventsText">0</strong>
+            </div>
+            <div>
+              <span class="metric-label">State</span>
+              <strong id="stateText">ready</strong>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel readout-panel">
+          <div class="readout-block">
+            <h2>Tracks</h2>
+            <div class="track-list" id="trackList"></div>
+          </div>
+          <div class="readout-block">
+            <h2>Pulse</h2>
+            <div class="pulse-grid" id="pulseGrid"></div>
+          </div>
+          <div class="readout-block">
+            <h2>Audio renders</h2>
+            <div class="render-list" id="renderList"></div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
