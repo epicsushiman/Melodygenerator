@@ -8,7 +8,7 @@ The main goal of the project is to make something that is both creative and repe
 
 ## What The App Does
 
-On the left side, there are controls for the generated piece. I can choose between `Slow`, `Medium`, and `Fast`, change the seed, adjust the tempo, and increase or decrease the density.
+On the left side, there are controls for the generated piece. I can choose between `Glass Tide`, `Clockwork Rain`, and `Low Moon`, change the seed, change the key and mode, adjust the tempo, and increase or decrease the density.
 
 In the center, the app shows a piano-roll style visualization. Each colored block represents a musical event, such as a melody note, bass note, pad note, or drum hit.
 
@@ -16,11 +16,11 @@ On the bottom, there is a signature value. This signature is important because i
 
 ## Demo Step 1: Play A Preset
 
-First, I will play the `Slow` version.
+First, I will play the `Glass Tide` version.
 
 **Demo cue:** Press `Play`.
 
-This version is slower and lower in register, so it has a more atmospheric feeling. The melody has space between notes, and the bass and pad sounds create a slower texture.
+This version is the most balanced take. It has a clear pulse, a medium tempo, and a melody that feels centered without becoming too predictable.
 
 ## Demo Step 2: Show Repeatability
 
@@ -38,17 +38,19 @@ Next, I will change the seed.
 
 Now the signature changes, and the note pattern changes too. The overall style is still connected to the selected preset, but the exact melody and rhythm choices are different.
 
-## Demo Step 4: Compare Slow, Medium, And Fast
+I can also change the key or mode. For example, the default is D Dorian, but I can move it to another key or switch to major, minor, or another mode. That changes the pitch world while the rhythm and seed logic stay repeatable.
+
+## Demo Step 4: Compare The Three Takes
 
 Now I will switch between the three versions.
 
-**Demo cue:** Select `Medium`, then press `Play`.
+**Demo cue:** Select `Clockwork Rain`, then press `Play`.
 
-The `Medium` version is more balanced. It has a clearer pulse and a melody that feels more centered.
+The `Clockwork Rain` version is faster, denser, and more energetic. More notes happen in a shorter amount of time, and the percussion feels more active.
 
-**Demo cue:** Select `Fast`, then press `Play`.
+**Demo cue:** Select `Low Moon`, then press `Play`.
 
-The `Fast` version is denser and more energetic. More notes happen in a shorter amount of time, and the percussion feels more active.
+The `Low Moon` version is slower and lower in register, so it has a more atmospheric feeling. The melody has more space between notes, and the bass and pad sounds create a slower texture.
 
 ## How It Works
 
@@ -56,12 +58,14 @@ The app uses several generative techniques. First, it uses **Euclidean rhythm**,
 
 Second, it uses a **Markov-style melody system**. The melody usually moves to nearby notes, but sometimes it jumps. This makes the melody feel more musical than choosing random pitches with no memory.
 
-Third, it uses **seeded randomness**. The seed controls the random choices, so the same seed always creates the same result.
+Third, it uses **key and mode controls**. The original sound is D Dorian, but the same generated pattern can be shifted into other keys or modes.
+
+Fourth, it uses **seeded randomness**. The seed controls the random choices, so the same seed always creates the same result.
 
 The app is built with plain HTML, CSS, and JavaScript. The visual grid uses the browser canvas, and the sound is played live using the Web Audio API. The project also includes Python code that generates MIDI files and WAV audio renders.
 
 ## Closing
 
-Overall, Melody Generator explores how a small set of rules can create different musical outcomes. The `Slow`, `Medium`, and `Fast` versions show how changes in tempo, density, and register can make the same system feel atmospheric, balanced, or energetic.
+Overall, Melody Generator explores how a small set of rules can create different musical outcomes. The `Glass Tide`, `Clockwork Rain`, and `Low Moon` versions show how changes in tempo, density, and register can make the same system feel balanced, energetic, or atmospheric.
 
 My next step would be to expand the generator into a longer 3-5 minute piece with a clearer musical form, so the system can move from an opening texture to a more developed climax.

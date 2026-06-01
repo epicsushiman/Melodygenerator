@@ -22,7 +22,7 @@ current_degree = 4
 possible_moves = [-3, -2, -1, 0, +1, +2, +3, +5]
 weights favor -1, 0, and +1
 next_degree = clamp(current_degree + weighted_choice(possible_moves))
-pitch = D_dorian[next_degree]
+pitch = selected_mode[next_degree] + selected_key
 ```
 
 This sketch helps avoid fully random note selection. The melody has a memory of where it was, which gives each line a contour.
@@ -32,9 +32,9 @@ This sketch helps avoid fully random note selection. The melody has a memory of 
 Goal: generate three related but distinct versions from the same algorithm.
 
 ```text
-Slow      tempo 72,  sparse rhythm, lower register
-Medium    tempo 84,  balanced rhythm, middle register
-Fast      tempo 104, denser rhythm, higher register
+Glass Tide       tempo 84,  balanced rhythm, middle register
+Clockwork Rain   tempo 104, denser rhythm, higher register
+Low Moon         tempo 72,  sparse rhythm, lower register
 ```
 
 The final project can compare these takes and then combine the strongest features into a longer 3-5 minute version.

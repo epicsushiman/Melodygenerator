@@ -6,11 +6,11 @@
 
 ## 2. Creative Development Sketches
 
-The first sketch uses Euclidean rhythm to distribute attacks across a 16-step grid, creating uneven but balanced pulse patterns. The second sketch uses a Markov-style melody generator that prefers stepwise motion but occasionally permits leaps, so the line sounds intentional without becoming predictable. The third sketch layers a slow drone/pad under bass and percussion, then varies density, tempo, and register across three generated versions: `Slow`, `Medium`, and `Fast`. Early materials are documented in `sketches/creative_sketches.md`, with generated MIDI files in `output/midi/` and audio renders in `output/audio/`.
+The first sketch uses Euclidean rhythm to distribute attacks across a 16-step grid, creating uneven but balanced pulse patterns. The second sketch uses a Markov-style melody generator that prefers stepwise motion but occasionally permits leaps, so the line sounds intentional without becoming predictable. The third sketch layers a slow drone/pad under bass and percussion, then varies density, tempo, and register across three generated versions: `Glass Tide`, `Clockwork Rain`, and `Low Moon`. Early materials are documented in `sketches/creative_sketches.md`, with generated MIDI files in `output/midi/` and audio renders in `output/audio/`.
 
 ## 3. Materials, Methods, And Tools
 
-The project will use Python and Jupyter/Colab as the main development environment. The current generator uses only the Python standard library, including custom MIDI writing and a simple WAV renderer, which makes the process transparent and portable. Musical materials include D Dorian pitch collections, Euclidean rhythm patterns, seeded random choices, and layered synthetic timbres. The notebook will document the algorithm and allow future edits to tempo, scale, rhythm density, seed values, and arrangement length.
+The project will use Python and Jupyter/Colab as the main development environment. The current generator uses only the Python standard library, including custom MIDI writing and a simple WAV renderer, which makes the process transparent and portable. Musical materials include selectable key and mode collections, Euclidean rhythm patterns, seeded random choices, and layered synthetic timbres. The notebook will document the algorithm and allow future edits to tempo, scale, rhythm density, seed values, and arrangement length.
 
 ## 4. References And Influences
 

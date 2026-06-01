@@ -1,4 +1,27 @@
-const D_DORIAN = [0, 2, 3, 5, 7, 9, 10, 12];
+const KEY_ROOTS = {
+  C: 60,
+  "C#": 61,
+  D: 62,
+  "D#": 63,
+  E: 64,
+  F: 65,
+  "F#": 66,
+  G: 67,
+  "G#": 68,
+  A: 69,
+  "A#": 70,
+  B: 71,
+};
+
+const MODES = {
+  major: { label: "Major", intervals: [0, 2, 4, 5, 7, 9, 11, 12] },
+  minor: { label: "Minor", intervals: [0, 2, 3, 5, 7, 8, 10, 12] },
+  dorian: { label: "Dorian", intervals: [0, 2, 3, 5, 7, 9, 10, 12] },
+  mixolydian: { label: "Mixolydian", intervals: [0, 2, 4, 5, 7, 9, 10, 12] },
+  phrygian: { label: "Phrygian", intervals: [0, 1, 3, 5, 7, 8, 10, 12] },
+  lydian: { label: "Lydian", intervals: [0, 2, 4, 6, 7, 9, 11, 12] },
+};
+
 const ROOTS = [0, 3, 5, 2, 0, 6, 3, 5];
 const TRACK_COLORS = {
   lead: "#00a896",
@@ -9,21 +32,8 @@ const TRACK_COLORS = {
 
 const SPECS = [
   {
-    slug: "01_slow",
-    title: "Slow",
-    seed: 91,
-    tempo: 72,
-    bars: 8,
-    melodyPulses: 4,
-    melodySteps: 16,
-    bassPulses: 2,
-    bassSteps: 8,
-    register: -7,
-    energy: 0.45,
-  },
-  {
-    slug: "02_medium",
-    title: "Medium",
+    slug: "01_glass_tide",
+    title: "Glass Tide",
     seed: 17,
     tempo: 84,
     bars: 8,
@@ -33,10 +43,12 @@ const SPECS = [
     bassSteps: 8,
     register: 0,
     energy: 0.55,
+    key: "D",
+    mode: "dorian",
   },
   {
-    slug: "03_fast",
-    title: "Fast",
+    slug: "02_clockwork_rain",
+    title: "Clockwork Rain",
     seed: 42,
     tempo: 104,
     bars: 8,
@@ -46,6 +58,23 @@ const SPECS = [
     bassSteps: 12,
     register: 5,
     energy: 0.82,
+    key: "D",
+    mode: "dorian",
+  },
+  {
+    slug: "03_low_moon",
+    title: "Low Moon",
+    seed: 91,
+    tempo: 72,
+    bars: 8,
+    melodyPulses: 4,
+    melodySteps: 16,
+    bassPulses: 2,
+    bassSteps: 8,
+    register: -7,
+    energy: 0.45,
+    key: "D",
+    mode: "dorian",
   },
 ];
 
@@ -64,6 +93,8 @@ const state = {
 const els = {
   variationSelect: document.querySelector("#variationSelect"),
   seedInput: document.querySelector("#seedInput"),
+  keySelect: document.querySelector("#keySelect"),
+  modeSelect: document.querySelector("#modeSelect"),
   tempoInput: document.querySelector("#tempoInput"),
   tempoOutput: document.querySelector("#tempoOutput"),
   densityInput: document.querySelector("#densityInput"),
@@ -75,6 +106,7 @@ const els = {
   newSeedButton: document.querySelector("#newSeedButton"),
   rollCanvas: document.querySelector("#rollCanvas"),
   signatureText: document.querySelector("#signatureText"),
+  keyText: document.querySelector("#keyText"),
   barsText: document.querySelector("#barsText"),
   eventsText: document.querySelector("#eventsText"),
   stateText: document.querySelector("#stateText"),
@@ -129,10 +161,12 @@ function euclidean(pulses, steps, rotate = 0) {
   return pattern.slice(-offset).concat(pattern.slice(0, -offset));
 }
 
-function scalePitch(degree, octave = 4, root = 62) {
-  const octaveOffset = Math.floor(degree / D_DORIAN.length);
-  const index = ((degree % D_DORIAN.length) + D_DORIAN.length) % D_DORIAN.length;
-  return root + (octave - 4) * 12 + octaveOffset * 12 + D_DORIAN[index];
+function scalePitch(degree, octave = 4, spec) {
+  const mode = MODES[spec.mode] || MODES.dorian;
+  const root = (KEY_ROOTS[spec.key] || KEY_ROOTS.D) + spec.register;
+  const octaveOffset = Math.floor(degree / mode.intervals.length);
+  const index = ((degree % mode.intervals.length) + mode.intervals.length) % mode.intervals.length;
+  return root + (octave - 4) * 12 + octaveOffset * 12 + mode.intervals[index];
 }
 
 function markovNext(degree, rng, energy) {
@@ -180,7 +214,7 @@ function compose(spec) {
         return;
       }
       const start = barStart + step * (4 / spec.bassSteps);
-      const pitch = scalePitch(rootDegree, 2, 62 + spec.register);
+      const pitch = scalePitch(rootDegree, 2, spec);
       addNote(events, "bass", start, 0.75, pitch, 72);
     });
 
@@ -193,19 +227,19 @@ function compose(spec) {
       if (rng() < 0.35) {
         degree = Math.floor((degree + rootDegree) / 2);
       }
-      const pitch = scalePitch(degree, 4, 62 + spec.register);
+      const pitch = scalePitch(degree, 4, spec);
       const duration = pick([0.25, 0.375, 0.5, 0.75], rng);
       const velocity = (62 + rng() * 30) * (0.85 + spec.energy * 0.2);
       addNote(events, "lead", start, duration, pitch, velocity);
 
       if (rng() < 0.28 + spec.energy * 0.2) {
         const harmonyDegree = Math.max(0, degree - pick([2, 3, 4], rng));
-        const harmony = scalePitch(harmonyDegree, 4, 62 + spec.register);
+        const harmony = scalePitch(harmonyDegree, 4, spec);
         addNote(events, "pad", start, duration * 1.5, harmony, velocity - 18);
       }
     });
 
-    const padRoot = scalePitch(rootDegree, 3, 62 + spec.register);
+    const padRoot = scalePitch(rootDegree, 3, spec);
     [0, 7, 14].forEach((interval) => addNote(events, "pad", barStart, 3.75, padRoot + interval, 44));
 
     for (let beat = 0; beat < 4; beat += 1) {
@@ -231,6 +265,8 @@ function sequenceSignature(events, spec) {
     spec.seed,
     spec.tempo,
     spec.density,
+    spec.key,
+    spec.mode,
     ...events.map((event) => `${event.track[0]}:${Math.round(event.start * 100)}:${event.pitch}:${event.velocity}`),
   ].join("|");
   let hash = 2166136261;
@@ -250,6 +286,8 @@ function rebuild() {
 
 function updateControlsFromSpec() {
   els.seedInput.value = state.spec.seed;
+  els.keySelect.value = state.spec.key;
+  els.modeSelect.value = state.spec.mode;
   els.tempoInput.value = state.spec.tempo;
   els.tempoOutput.value = `${state.spec.tempo} bpm`;
   els.densityInput.value = state.spec.density;
@@ -263,6 +301,8 @@ function updateReadout() {
   });
 
   els.signatureText.textContent = state.signature;
+  const mode = MODES[state.spec.mode] || MODES.dorian;
+  els.keyText.textContent = `${state.spec.key} ${mode.label}`;
   els.barsText.textContent = state.spec.bars;
   els.eventsText.textContent = state.events.length;
   els.trackList.innerHTML = Object.entries(counts)
@@ -318,8 +358,11 @@ function drawRoll() {
   const plotWidth = width - padding.left - padding.right;
   const plotHeight = height - padding.top - padding.bottom;
   const totalBeats = state.spec.bars * 4;
-  const pitchMin = 30;
-  const pitchMax = 84;
+  const pitches = state.events
+    .filter((event) => event.track !== "drums")
+    .map((event) => event.pitch);
+  const pitchMin = Math.min(30, ...pitches) - 2;
+  const pitchMax = Math.max(84, ...pitches) + 2;
   const drumLaneTop = padding.top + plotHeight * 0.82;
 
   ctx.clearRect(0, 0, width, height);
@@ -537,13 +580,20 @@ function stop(updateCanvas = true) {
 
 function applySelectedVariation() {
   const selected = SPECS[Number(els.variationSelect.value)];
-  state.spec = { ...selected, density: Number(els.densityInput.value || 0) };
+  state.spec = {
+    ...selected,
+    density: Number(els.densityInput.value || 0),
+    key: els.keySelect.value || selected.key,
+    mode: els.modeSelect.value || selected.mode,
+  };
   updateControlsFromSpec();
   rebuild();
 }
 
 function syncSpecFromControls() {
   state.spec.seed = Math.max(1, Math.min(9999, Number(els.seedInput.value) || 1));
+  state.spec.key = els.keySelect.value;
+  state.spec.mode = els.modeSelect.value;
   state.spec.tempo = Number(els.tempoInput.value);
   state.spec.density = Number(els.densityInput.value);
   els.tempoOutput.value = `${state.spec.tempo} bpm`;
@@ -562,6 +612,8 @@ function wireEvents() {
   });
   els.variationSelect.addEventListener("change", applySelectedVariation);
   els.seedInput.addEventListener("change", syncSpecFromControls);
+  els.keySelect.addEventListener("change", syncSpecFromControls);
+  els.modeSelect.addEventListener("change", syncSpecFromControls);
   els.tempoInput.addEventListener("input", syncSpecFromControls);
   els.densityInput.addEventListener("input", syncSpecFromControls);
   window.addEventListener("resize", resizeCanvas);

@@ -3,11 +3,11 @@
 ## One-Minute Flow
 
 1. Open `demo/index.html`.
-2. Press `Play` on `Slow`.
+2. Press `Play` on `Glass Tide`.
 3. Point to the signature value and seed number.
 4. Press `Same seed` or `Rebuild`; the signature stays the same.
-5. Change the seed or density; the signature, note grid, and sound change.
-6. Switch to `Medium` or `Fast` to show that the same system can create different musical characters.
+5. Change the key, mode, seed, or density; the signature, note grid, and sound change.
+6. Switch to `Clockwork Rain` or `Low Moon` to show that the same system can create different musical characters.
 
 ## Talking Points
 

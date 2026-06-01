@@ -10,9 +10,9 @@ The central idea is to make music that feels partly mechanical and partly organi
 
 The project includes three generated takes:
 
-- `Slow` - slower tempo, lower register, more atmospheric.
-- `Medium` - medium tempo, balanced rhythm, clear melodic contour.
-- `Fast` - faster tempo, denser rhythm, and more active percussion.
+- `Glass Tide` - medium tempo, balanced rhythm, clear melodic contour.
+- `Clockwork Rain` - faster tempo, denser rhythm, and more active percussion.
+- `Low Moon` - slower tempo, lower register, more atmospheric.
 
 ## How The Demo Works
 
@@ -22,7 +22,7 @@ Open the browser demo:
 demo/index.html
 ```
 
-The demo lets you choose a take, change the seed, adjust tempo, adjust density, and press play. It draws the generated music as a piano-roll grid and plays it using the browser's Web Audio API.
+The demo lets you choose a take, change the seed, change the key and mode, adjust tempo, adjust density, and press play. It draws the generated music as a piano-roll grid and plays it using the browser's Web Audio API.
 
 Repeatability is shown with the `Signature` value. If the take, seed, tempo, and density stay the same, pressing `Rebuild` produces the same signature and the same note pattern. If you change the seed or density, the signature changes because the generated event list changes.
 
@@ -39,7 +39,7 @@ The main techniques are:
 - **Seeded randomness**: makes random choices repeatable.
 - **Euclidean rhythm**: distributes note attacks evenly across a step grid.
 - **Markov-style melody**: chooses the next note based on the current note, usually moving by step with occasional leaps.
-- **Modal pitch material**: uses D Dorian as the main scale.
+- **Selectable pitch material**: defaults to D Dorian, but the browser demo can change key and mode.
 - **Layered arrangement**: combines lead, bass, pad, kick, snare, and hi-hat parts.
 - **Simple synthesis**: renders browser audio live and creates WAV files from Python.
 
@@ -67,11 +67,11 @@ project/demo/index.html
 
 Suggested presentation flow:
 
-1. Press `Play` on `Slow`.
+1. Press `Play` on `Glass Tide`.
 2. Point out the seed and signature.
 3. Press `Rebuild` or `Same seed` to show that the signature stays the same.
-4. Change the seed or density to show a new generated result.
-5. Switch to `Medium` or `Fast` to compare musical character.
+4. Change the key, mode, seed, or density to show a new generated result.
+5. Switch to `Clockwork Rain` or `Low Moon` to compare musical character.
 
 ## Deploy To Render
 
@@ -109,4 +109,4 @@ The script uses only the Python standard library. It writes MIDI files into `out
 
 ## Short Description For Presentation
 
-`Melody Generator` is a generative music system that turns deterministic rules into repeatable musical output. A seed controls the randomness, Euclidean rhythms create the pulse, Markov-style choices shape the melody, and the browser displays the generated notes while playing them live.
+`Melody Generator` is a generative music system that turns deterministic rules into repeatable musical output. A seed controls the randomness, Euclidean rhythms create the pulse, key and mode controls set the pitch world, Markov-style choices shape the melody, and the browser displays the generated notes while playing them live.

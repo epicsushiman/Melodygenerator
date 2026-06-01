@@ -13,7 +13,28 @@ MIDI_DIR = ROOT / "output" / "midi"
 AUDIO_DIR = ROOT / "output" / "audio"
 TICKS_PER_BEAT = 480
 SAMPLE_RATE = 44100
-D_DORIAN = [0, 2, 3, 5, 7, 9, 10, 12]
+KEY_ROOTS = {
+    "C": 60,
+    "C#": 61,
+    "D": 62,
+    "D#": 63,
+    "E": 64,
+    "F": 65,
+    "F#": 66,
+    "G": 67,
+    "G#": 68,
+    "A": 69,
+    "A#": 70,
+    "B": 71,
+}
+MODES = {
+    "major": [0, 2, 4, 5, 7, 9, 11, 12],
+    "minor": [0, 2, 3, 5, 7, 8, 10, 12],
+    "dorian": [0, 2, 3, 5, 7, 9, 10, 12],
+    "mixolydian": [0, 2, 4, 5, 7, 9, 10, 12],
+    "phrygian": [0, 1, 3, 5, 7, 8, 10, 12],
+    "lydian": [0, 2, 4, 6, 7, 9, 11, 12],
+}
 
 
 @dataclass(frozen=True)
@@ -29,12 +50,14 @@ class VariationSpec:
     bass_steps: int
     register: int
     energy: float
+    key: str = "D"
+    mode: str = "dorian"
 
 
 VARIATIONS = [
-    VariationSpec("01_slow", "Slow", 91, 72, 20, 4, 16, 2, 8, -7, 0.45),
-    VariationSpec("02_medium", "Medium", 17, 84, 24, 5, 16, 3, 8, 0, 0.55),
-    VariationSpec("03_fast", "Fast", 42, 104, 24, 9, 16, 5, 12, 5, 0.82),
+    VariationSpec("01_glass_tide", "Glass Tide", 17, 84, 24, 5, 16, 3, 8, 0, 0.55),
+    VariationSpec("02_clockwork_rain", "Clockwork Rain", 42, 104, 24, 9, 16, 5, 12, 5, 0.82),
+    VariationSpec("03_low_moon", "Low Moon", 91, 72, 20, 4, 16, 2, 8, -7, 0.45),
 ]
 
 
@@ -59,9 +82,11 @@ def euclidean(pulses: int, steps: int, rotate: int = 0) -> list[int]:
     return pattern
 
 
-def scale_pitch(degree: int, octave: int = 4, root: int = 62) -> int:
-    octave_offset, index = divmod(degree, len(D_DORIAN))
-    return root + (octave - 4) * 12 + octave_offset * 12 + D_DORIAN[index]
+def scale_pitch(degree: int, octave: int = 4, key: str = "D", mode: str = "dorian", register: int = 0) -> int:
+    intervals = MODES.get(mode, MODES["dorian"])
+    root = KEY_ROOTS.get(key, KEY_ROOTS["D"]) + register
+    octave_offset, index = divmod(degree, len(intervals))
+    return root + (octave - 4) * 12 + octave_offset * 12 + intervals[index]
 
 
 def markov_next(degree: int, rng: random.Random, energy: float) -> int:
@@ -119,7 +144,7 @@ def compose(spec: VariationSpec) -> list[dict]:
         for step, hit in enumerate(bass_rhythm):
             if hit:
                 start = bar_start + step * (4.0 / spec.bass_steps)
-                pitch = scale_pitch(root_degree, octave=2, root=62 + spec.register)
+                pitch = scale_pitch(root_degree, octave=2, key=spec.key, mode=spec.mode, register=spec.register)
                 add_note(events, "bass", start, 0.75, pitch, 72, channel=1, program=32)
 
         for step, hit in enumerate(melody_rhythm):
@@ -129,16 +154,22 @@ def compose(spec: VariationSpec) -> list[dict]:
             degree = markov_next(degree, rng, spec.energy)
             if rng.random() < 0.35:
                 degree = (degree + root_degree) // 2
-            pitch = scale_pitch(degree, octave=4, root=62 + spec.register)
+            pitch = scale_pitch(degree, octave=4, key=spec.key, mode=spec.mode, register=spec.register)
             duration = rng.choice([0.25, 0.375, 0.5, 0.75])
             velocity = int(rng.uniform(62, 92) * (0.85 + spec.energy * 0.2))
             add_note(events, "lead", start, duration, pitch, velocity, channel=0, program=4)
 
             if rng.random() < 0.28 + spec.energy * 0.2:
-                harmony = scale_pitch(max(0, degree - rng.choice([2, 3, 4])), octave=4, root=62 + spec.register)
+                harmony = scale_pitch(
+                    max(0, degree - rng.choice([2, 3, 4])),
+                    octave=4,
+                    key=spec.key,
+                    mode=spec.mode,
+                    register=spec.register,
+                )
                 add_note(events, "pad", start, duration * 1.5, harmony, velocity - 18, channel=2, program=88)
 
-        pad_root = scale_pitch(root_degree, octave=3, root=62 + spec.register)
+        pad_root = scale_pitch(root_degree, octave=3, key=spec.key, mode=spec.mode, register=spec.register)
         for interval in [0, 7, 14]:
             add_note(events, "pad", bar_start, 3.75, pad_root + interval, 44, channel=2, program=88)
 
