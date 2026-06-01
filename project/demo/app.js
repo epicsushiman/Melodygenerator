@@ -88,6 +88,7 @@ const state = {
   animationFrame: 0,
   audioContext: null,
   stopTimer: 0,
+  exporting: false,
 };
 
 const els = {
@@ -102,6 +103,7 @@ const els = {
   playButton: document.querySelector("#playButton"),
   stopButton: document.querySelector("#stopButton"),
   rebuildButton: document.querySelector("#rebuildButton"),
+  exportButton: document.querySelector("#exportButton"),
   repeatButton: document.querySelector("#repeatButton"),
   newSeedButton: document.querySelector("#newSeedButton"),
   rollCanvas: document.querySelector("#rollCanvas"),
@@ -445,6 +447,10 @@ function midiToFrequency(pitch) {
   return 440 * (2 ** ((pitch - 69) / 12));
 }
 
+function totalDurationSeconds(spec) {
+  return spec.bars * 4 * (60 / spec.tempo);
+}
+
 function makeGain(context, start, duration, peak, release = 0.12) {
   const gain = context.createGain();
   const end = start + duration;
@@ -529,6 +535,96 @@ function scheduleDrum(context, event, eventIndex, startTime, secondsPerBeat) {
   source.start(start);
 }
 
+function scheduleEvents(context, startTime, secondsPerBeat) {
+  state.events.forEach((event, index) => {
+    if (event.track === "drums") {
+      scheduleDrum(context, event, index, startTime, secondsPerBeat);
+    } else {
+      scheduleTone(context, event, startTime, secondsPerBeat);
+    }
+  });
+}
+
+function writeAscii(view, offset, value) {
+  for (let index = 0; index < value.length; index += 1) {
+    view.setUint8(offset + index, value.charCodeAt(index));
+  }
+}
+
+function audioBufferToWav(buffer) {
+  const samples = buffer.getChannelData(0);
+  const output = new ArrayBuffer(44 + samples.length * 2);
+  const view = new DataView(output);
+  const sampleRate = buffer.sampleRate;
+
+  writeAscii(view, 0, "RIFF");
+  view.setUint32(4, 36 + samples.length * 2, true);
+  writeAscii(view, 8, "WAVE");
+  writeAscii(view, 12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeAscii(view, 36, "data");
+  view.setUint32(40, samples.length * 2, true);
+
+  let offset = 44;
+  for (let index = 0; index < samples.length; index += 1) {
+    const sample = Math.max(-1, Math.min(1, samples[index]));
+    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+    offset += 2;
+  }
+
+  return new Blob([output], { type: "audio/wav" });
+}
+
+function exportFileName() {
+  const take = state.spec.title.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+  const key = state.spec.key.replace("#", "sharp").toLowerCase();
+  return `melody_generator_${take}_${key}_${state.spec.mode}_${state.signature}.wav`;
+}
+
+async function exportWav() {
+  const OfflineContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  if (!OfflineContext) {
+    els.stateText.textContent = "no export";
+    return;
+  }
+
+  syncSpecFromControls();
+  state.exporting = true;
+  els.exportButton.disabled = true;
+  els.stateText.textContent = "exporting";
+
+  try {
+    const sampleRate = 44100;
+    const secondsPerBeat = 60 / state.spec.tempo;
+    const renderSeconds = totalDurationSeconds(state.spec) + 1.0;
+    const context = new OfflineContext(1, Math.ceil(renderSeconds * sampleRate), sampleRate);
+    scheduleEvents(context, 0.08, secondsPerBeat);
+    const rendered = await context.startRendering();
+    const blob = audioBufferToWav(rendered);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = exportFileName();
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 30000);
+    els.stateText.textContent = "exported";
+  } catch (error) {
+    console.error(error);
+    els.stateText.textContent = "export failed";
+  } finally {
+    state.exporting = false;
+    els.exportButton.disabled = false;
+  }
+}
+
 async function play() {
   stop(false);
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -542,21 +638,14 @@ async function play() {
   await context.resume();
 
   const secondsPerBeat = 60 / state.spec.tempo;
-  const totalBeats = state.spec.bars * 4;
   const startTime = context.currentTime + 0.08;
-  state.durationMs = totalBeats * secondsPerBeat * 1000;
+  state.durationMs = totalDurationSeconds(state.spec) * 1000;
   state.startedAt = performance.now();
   state.playing = true;
   els.stateText.textContent = "playing";
   els.playButton.disabled = true;
 
-  state.events.forEach((event, index) => {
-    if (event.track === "drums") {
-      scheduleDrum(context, event, index, startTime, secondsPerBeat);
-    } else {
-      scheduleTone(context, event, startTime, secondsPerBeat);
-    }
-  });
+  scheduleEvents(context, startTime, secondsPerBeat);
 
   cancelAnimationFrame(state.animationFrame);
   state.animationFrame = requestAnimationFrame(animate);
@@ -605,6 +694,7 @@ function wireEvents() {
   els.playButton.addEventListener("click", play);
   els.stopButton.addEventListener("click", () => stop(true));
   els.rebuildButton.addEventListener("click", syncSpecFromControls);
+  els.exportButton.addEventListener("click", exportWav);
   els.repeatButton.addEventListener("click", syncSpecFromControls);
   els.newSeedButton.addEventListener("click", () => {
     els.seedInput.value = Math.floor(100 + Math.random() * 9900);

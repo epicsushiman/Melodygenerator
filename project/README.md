@@ -22,9 +22,9 @@ Open the browser demo:
 demo/index.html
 ```
 
-The demo lets you choose a take, change the seed, change the key and mode, adjust tempo, adjust density, and press play. It draws the generated music as a piano-roll grid and plays it using the browser's Web Audio API.
+The demo lets you choose a take, change the seed, change the key and mode, adjust tempo, adjust density, press play, and export the current result as a WAV file. It draws the generated music as a piano-roll grid and plays it using the browser's Web Audio API.
 
-Repeatability is shown with the `Signature` value. If the take, seed, tempo, and density stay the same, pressing `Rebuild` produces the same signature and the same note pattern. If you change the seed or density, the signature changes because the generated event list changes.
+Repeatability is shown with the `Signature` value. If the take, seed, key, mode, tempo, and density stay the same, pressing `Rebuild` produces the same signature and the same note pattern. If you change any of those settings, the signature changes because the generated event list changes.
 
 ## Generation Method
 
@@ -71,7 +71,8 @@ Suggested presentation flow:
 2. Point out the seed and signature.
 3. Press `Rebuild` or `Same seed` to show that the signature stays the same.
 4. Change the key, mode, seed, or density to show a new generated result.
-5. Switch to `Clockwork Rain` or `Low Moon` to compare musical character.
+5. Press `Export WAV` to download the current generated audio.
+6. Switch to `Clockwork Rain` or `Low Moon` to compare musical character.
 
 ## Deploy To Render
 

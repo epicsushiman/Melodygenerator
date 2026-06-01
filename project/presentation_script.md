@@ -8,7 +8,7 @@ The main goal of the project is to make something that is both creative and repe
 
 ## What The App Does
 
-On the left side, there are controls for the generated piece. I can choose between `Glass Tide`, `Clockwork Rain`, and `Low Moon`, change the seed, change the key and mode, adjust the tempo, and increase or decrease the density.
+On the left side, there are controls for the generated piece. I can choose between `Glass Tide`, `Clockwork Rain`, and `Low Moon`, change the seed, change the key and mode, adjust the tempo, increase or decrease the density, and export the current version as a WAV file.
 
 In the center, the app shows a piano-roll style visualization. Each colored block represents a musical event, such as a melody note, bass note, pad note, or drum hit.
 
@@ -39,6 +39,10 @@ Next, I will change the seed.
 Now the signature changes, and the note pattern changes too. The overall style is still connected to the selected preset, but the exact melody and rhythm choices are different.
 
 I can also change the key or mode. For example, the default is D Dorian, but I can move it to another key or switch to major, minor, or another mode. That changes the pitch world while the rhythm and seed logic stay repeatable.
+
+**Demo cue:** Press `Export WAV`.
+
+This renders the current settings into an audio file, so the generated result can be saved outside the browser.
 
 ## Demo Step 4: Compare The Three Takes
 
